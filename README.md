@@ -1,5 +1,7 @@
 # Pishgamrayan sms package for golang
 
+[![Tests](https://github.com/erfandiakoo/pishgamrayan-go/actions/workflows/go.yml/badge.svg)](https://github.com/erfandiakoo/pishgamrayan-go/actions/workflows/go.yml)
+
 # Installation
 ```sh
 go get github.com/erfandiakoo/pishgamrayan-go
