@@ -2,12 +2,12 @@
 
 [![Tests](https://github.com/erfandiakoo/pishgamrayan-go/actions/workflows/go.yml/badge.svg)](https://github.com/erfandiakoo/pishgamrayan-go/actions/workflows/go.yml)
 
-# Installation
+## Installation
 ```sh
 go get github.com/erfandiakoo/pishgamrayan-go
 ```
 
-# Useage
+## Useage
 
 ```go
 package main
