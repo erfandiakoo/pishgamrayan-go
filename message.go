@@ -6,12 +6,10 @@ import (
 
 // Message ...
 type Message struct {
-	MessageID        int               `json:"messageid"`
-	Message          string            `json:"message"`
-	Status           MessageStatusType `json:"status"`
-	StatusText       string            `json:"statustext"`
-	SenderNumber     []string          `json:"sender"`
-	RecipientNumbers []string          `json:"recipientNumbers"`
+	SenderNumber     string   `json:"senderNumber"`
+	MessageBodies    []string `json:"messageBodies"`
+	RecipientNumbers []string `json:"recipientNumbers"`
+	SendDateTime     string   `json:"sendDateTime"`
 }
 
 // MessageSendParam ...
@@ -22,8 +20,15 @@ type MessageSendParam struct {
 
 // MessageResult ...
 type MessageResult struct {
-	*Return
-	Entries []Message `json:"entries"`
+	StatusCode     int64          `json:"statusCode"`
+	MessageID      int64          `json:"messageId"`
+	BlackListCount int64          `json:"blackListCount"`
+	InvalidInputs  []InvalidInput `json:"invalidInputs"`
+}
+
+type InvalidInput struct {
+	RecipientNumber string `json:"recipientNumber"`
+	MessageBody     string `json:"messageBody"`
 }
 
 // MessageService ...

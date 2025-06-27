@@ -1,8 +1,9 @@
 package pishgamrayan
 
 import (
+	"bytes"
 	"encoding/json"
-	"fmt"
+	"log"
 	"net"
 	"net/http"
 	"net/url"
@@ -11,9 +12,6 @@ import (
 
 const (
 	apiBaseURL = "https://smsapi.pishgamrayan.com/"
-	apiVersion = "v1.9"
-	apiFormat  = "json"
-	version    = "0.1.0"
 )
 
 type Return struct {
@@ -43,25 +41,34 @@ func NewClient(apikey string) *Client {
 }
 
 func (c *Client) EndPoint(parts ...string) *url.URL {
-	up := []string{apiVersion, c.apikey}
-	up = append(up, parts...)
-	u, _ := url.Parse(strings.Join(up, "/"))
-	u.Path = fmt.Sprintf("/%s.%s", u.Path, apiFormat)
+	u, _ := url.Parse(strings.Join(parts, "/"))
+
+	log.Println(u)
+
 	return u
 }
 
-func (c *Client) Execute(urlStr string, b url.Values, v interface{}) error {
-	body := strings.NewReader(b.Encode())
+func (c *Client) Execute(urlStr string, b Message, v interface{}) error {
+	jsonBytes, err := json.Marshal(b)
+	if err != nil {
+		return err
+	}
+
+	body := bytes.NewReader(jsonBytes)
+
 	ul, _ := url.Parse(urlStr)
 	u := c.BaseURL.ResolveReference(ul)
 	req, _ := http.NewRequest("POST", u.String(), body)
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Accept-Charset", "utf-8")
+	req.Header.Add("Authorization", c.apikey)
+
 	resp, err := c.BaseClient.Do(req)
 	if err != nil {
-		if err, ok := err.(net.Error); ok {
-			return err
+		if netErr, ok := err.(net.Error); ok {
+			return netErr
 		}
 		if resp == nil {
 			return &HTTPError{
@@ -77,7 +84,8 @@ func (c *Client) Execute(urlStr string, b url.Values, v interface{}) error {
 		}
 	}
 	defer resp.Body.Close()
-	if 200 != resp.StatusCode {
+
+	if resp.StatusCode != http.StatusOK {
 		re := new(ReturnError)
 		err = json.NewDecoder(resp.Body).Decode(&re)
 		if err != nil {
@@ -90,6 +98,6 @@ func (c *Client) Execute(urlStr string, b url.Values, v interface{}) error {
 			Status: re.Return.StatusCode,
 		}
 	}
-	_ = json.NewDecoder(resp.Body).Decode(&v)
-	return nil
+
+	return json.NewDecoder(resp.Body).Decode(&v)
 }
